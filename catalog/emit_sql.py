@@ -155,6 +155,22 @@ def main() -> int:
         "installed_systems": [catalog["installedSystem"]],
     }
 
+    # Every part that goes into the database needs at least one listing with
+    # stock, or the app shows "No stock available for this part" and the total
+    # stays null. Checked here so a price gap cannot ship quietly.
+    listing_index = {(l["component_type"], l["component_id"]) for l in parts["listings"]}
+    missing = []
+    for kind, table, field in (("panel", "panels", "panel_id"),
+                               ("inverter", "inverters", "inverter_id"),
+                               ("battery", "batteries", "battery_id")):
+        for row in parts[table]:
+            if (kind, row[field]) not in listing_index:
+                missing.append(f"{kind} {row[field]}")
+    if missing:
+        raise SystemExit(f"{len(missing)} part(s) have no listing, so the app would "
+                         f"say 'No stock available': {missing[:5]}. "
+                         f"Run: python3 catalog/build.py --offline --seed")
+
     used_panels = {c["panel_id"] for c in catalog["configurations"]}
     kept = {p["panel_id"] for p in panels}
     if not used_panels <= kept:

@@ -420,38 +420,62 @@ def load_listings() -> tuple[list[dict], list[dict], dict]:
             "unit_price_php": price,
             "stock_units": stock,
             "price_as_of": row.get("price_as_of") or date.today().isoformat(),
-            "is_synthetic": False,
+            "is_synthetic": bool(row.get("is_synthetic", True)),
         })
     return suppliers, listings, {"present": True, "dropped": dropped}
 
 
+# Demo prices, derived from the levels the app's own demo used, scaled to our
+# parts: PHP 11.82/W for panels, PHP 11,000/kW for inverters, PHP 45,000 for the
+# battery. Every row is written with is_synthetic = true, and the app's footer
+# and the shopping-list PDF both already say prices are fictional. Replace these
+# with real quotes and nothing else has to change.
+PANEL_PHP_PER_W = 12.0
+INVERTER_PHP_PER_KW = 11000.0
+BATTERY_PHP = 45000.0
+SEED_STOCK = 9999
+SEED_PANEL_LIMIT = 60          # must match emit_sql.py --panel-limit
+
+DEMO_SHOP = {"supplier_id": "S1", "name": "Demo Solar Shop",
+             "location": "Metro Manila", "is_synthetic": True}
+
+
+def sample_price(kind: str, row: dict) -> float:
+    if kind == "panel":
+        return round(row["rated_power_w"] * PANEL_PHP_PER_W / 100) * 100
+    if kind == "inverter":
+        return round(row["rated_ac_power_kw"] * INVERTER_PHP_PER_KW / 100) * 100
+    return BATTERY_PHP
+
+
 def write_seed(panel_list, inverter_list) -> None:
     """Scaffold listings.seed.json with real ids and blank prices to fill in."""
-    rows_out = [
-        {"listing_id": f"L-inv-{i:02d}", "component_type": "inverter",
-         "component_id": inv["inverter_id"], "supplier_id": "S1",
-         "unit_price_php": None, "stock_units": None, "price_as_of": None}
-        for i, inv in enumerate(inverter_list, start=1)
-    ]
-    rows_out += [
-        {"listing_id": f"L-bat-{i:02d}", "component_type": "battery",
-         "component_id": bat["battery_id"], "supplier_id": "S1",
-         "unit_price_php": None, "stock_units": None, "price_as_of": None}
-        for i, bat in enumerate(BATTERIES, start=1)
-    ]
-    # Only the biggest panels: 3,368 rows is not a form a human can fill in.
-    for i, panel in enumerate(panel_list[:12], start=1):
-        rows_out.append({
-            "listing_id": f"L-pnl-{i:02d}", "component_type": "panel",
-            "component_id": panel["panel_id"], "supplier_id": "S1",
-            "unit_price_php": None, "stock_units": None, "price_as_of": None,
-        })
+    def row(lid: str, kind: str, cid: str, priced: dict) -> dict:
+        return {"listing_id": lid, "component_type": kind, "component_id": cid,
+                "supplier_id": "S1", "unit_price_php": sample_price(kind, priced),
+                "stock_units": SEED_STOCK, "price_as_of": None,
+                "is_synthetic": True}
+
+    rows_out = [row(f"L-inv-{i:02d}", "inverter", inv["inverter_id"], inv)
+                for i, inv in enumerate(inverter_list, start=1)]
+    rows_out += [row(f"L-bat-{i:02d}", "battery", bat["battery_id"], bat)
+                 for i, bat in enumerate(BATTERIES, start=1)]
+    # Same panel set emit_sql.py writes, so nothing lands in the dropdown
+    # without a price and a stock figure behind it.
+    keep = panel_list[:SEED_PANEL_LIMIT]
+    needed = {c["panel_id"] for c in build_configurations(panel_list, inverter_list)}
+    have = {p["panel_id"] for p in keep}
+    keep += [p for p in panel_list if p["panel_id"] in needed and p["panel_id"] not in have]
+    for i, panel in enumerate(keep, start=1):
+        rows_out.append(row(f"L-pnl-{i:02d}", "panel", panel["panel_id"], panel))
     payload = {
-        "_readme": ("Fill in name/location below, then a real price and stock for "
-                    "each row you have a quote for. Rows left null are dropped by "
-                    "build.py — they never reach the app. price_as_of is filled in "
-                    "automatically with today's date if left null."),
-        "suppliers": [{"supplier_id": "S1", "name": "", "location": "", "is_synthetic": False}],
+        "_readme": ("Demo prices, scaled from the levels the app's own demo used "
+                    "(PHP 11.82/W panels, PHP 11,000/kW inverters). Every row is "
+                    "is_synthetic: true, and the site's footer and the shopping-list "
+                    "PDF both say prices are fictional. Replace unit_price_php with a "
+                    "real quote and nothing else changes. A row with a null price or "
+                    "null stock is dropped by build.py and never reaches the app."),
+        "suppliers": [dict(DEMO_SHOP)],
         "listings": rows_out,
     }
     SEED.write_text(json.dumps(payload, indent=1, ensure_ascii=False), encoding="utf-8")

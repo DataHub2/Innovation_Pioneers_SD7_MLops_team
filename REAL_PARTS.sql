@@ -105,12 +105,82 @@ INSERT INTO public.batteries (battery_id,name,nominal_capacity_kwh,nominal_volta
 ON CONFLICT (battery_id) DO UPDATE SET name = excluded.name, nominal_capacity_kwh = excluded.nominal_capacity_kwh, nominal_voltage_v = excluded.nominal_voltage_v, min_operating_voltage_v = excluded.min_operating_voltage_v, max_operating_voltage_v = excluded.max_operating_voltage_v, max_charge_discharge_kw = excluded.max_charge_discharge_kw, max_parallel_units = excluded.max_parallel_units, bms_family = excluded.bms_family;
 
 
--- suppliers and listings are left empty on purpose: we have no
--- Philippine quote yet, and a guessed price makes the budget check
--- lie. The app reports 'Needs changing' for Budget and Stock, which
--- is accurate. Add rows here when a real quote exists.
-DELETE FROM public.listings;
-DELETE FROM public.suppliers;
+-- Shops
+INSERT INTO public.suppliers (supplier_id,name,location,is_synthetic) VALUES
+('S1','Demo Solar Shop','Metro Manila',true)
+ON CONFLICT (supplier_id) DO UPDATE SET name = excluded.name, location = excluded.location, is_synthetic = excluded.is_synthetic;
+
+
+-- Prices. Only rows with a real quote.
+INSERT INTO public.listings (listing_id,component_id,component_type,supplier_id,unit_price_php,stock_units,price_as_of,is_synthetic) VALUES
+('L-inv-01','deye-sun-3k-sg04lp1-eu','inverter','S1',33000,9999,'2026-09-16',true),
+('L-inv-02','deye-sun-3-6k-sg04lp1-eu','inverter','S1',39600,9999,'2026-09-16',true),
+('L-inv-03','deye-sun-5k-sg04lp1-eu','inverter','S1',55000,9999,'2026-09-16',true),
+('L-inv-04','deye-sun-6k-sg04lp1-eu','inverter','S1',66000,9999,'2026-09-16',true),
+('L-bat-01','deye-rw-f10-2','battery','S1',45000.0,9999,'2026-09-16',true),
+('L-pnl-01','cec-rec-group-rec740aa-pro-xl','panel','S1',8900,9999,'2026-09-16',true),
+('L-pnl-02','cec-trina-solar-tsm-740neg21c20','panel','S1',8900,9999,'2026-09-16',true),
+('L-pnl-03','cec-trina-solar-tsm-735neg21c20','panel','S1',8800,9999,'2026-09-16',true),
+('L-pnl-04','cec-rec-group-rec730aa-pro-xl','panel','S1',8800,9999,'2026-09-16',true),
+('L-pnl-05','cec-risen-energy-co-ltd-rsm132-8-730bhdg','panel','S1',8800,9999,'2026-09-16',true),
+('L-pnl-06','cec-suzhou-talesun-solar-technologies-co-ltd-tm8g66m-730','panel','S1',8800,9999,'2026-09-16',true),
+('L-pnl-07','cec-trina-solar-tsm-730neg21c20','panel','S1',8800,9999,'2026-09-16',true),
+('L-pnl-08','cec-risen-energy-co-ltd-rsm132-8-725bhdg','panel','S1',8700,9999,'2026-09-16',true),
+('L-pnl-09','cec-suzhou-talesun-solar-technologies-co-ltd-tm8g66m-725','panel','S1',8700,9999,'2026-09-16',true),
+('L-pnl-10','cec-trina-solar-coltd-tsm-725neg21c20','panel','S1',8700,9999,'2026-09-16',true),
+('L-pnl-11','cec-rec-group-rec720aa-pro-xl','panel','S1',8600,9999,'2026-09-16',true),
+('L-pnl-12','cec-risen-energy-co-ltd-rsm132-8-720bhdg','panel','S1',8600,9999,'2026-09-16',true),
+('L-pnl-13','cec-suzhou-talesun-solar-technologies-co-ltd-tm8g66m-720','panel','S1',8600,9999,'2026-09-16',true),
+('L-pnl-14','cec-trina-solar-coltd-tsm-720neg21c20','panel','S1',8600,9999,'2026-09-16',true),
+('L-pnl-15','cec-risen-energy-co-ltd-rsm132-8-715bhdg','panel','S1',8600,9999,'2026-09-16',true),
+('L-pnl-16','cec-suzhou-talesun-solar-technologies-co-ltd-tm8g66m-715','panel','S1',8600,9999,'2026-09-16',true),
+('L-pnl-17','cec-trina-solar-coltd-tsm-715neg21c20','panel','S1',8600,9999,'2026-09-16',true),
+('L-pnl-18','cec-risen-energy-co-ltd-rsm132-8-710bhdg','panel','S1',8500,9999,'2026-09-16',true),
+('L-pnl-19','cec-suzhou-talesun-solar-technologies-co-ltd-tm8g66m-710','panel','S1',8500,9999,'2026-09-16',true),
+('L-pnl-20','cec-trina-solar-coltd-tsm-710neg21c20','panel','S1',8500,9999,'2026-09-16',true),
+('L-pnl-21','cec-risen-energy-co-ltd-rsm132-8-705bhdg','panel','S1',8500,9999,'2026-09-16',true),
+('L-pnl-22','cec-suzhou-talesun-solar-technologies-co-ltd-tm8g66m-705','panel','S1',8500,9999,'2026-09-16',true),
+('L-pnl-23','cec-trina-solar-coltd-tsm-705neg21c20','panel','S1',8500,9999,'2026-09-16',true),
+('L-pnl-24','cec-risen-energy-co-ltd-rsm132-8-700bhdg','panel','S1',8400,9999,'2026-09-16',true),
+('L-pnl-25','cec-trina-solar-coltd-tsm-700neg21c20','panel','S1',8400,9999,'2026-09-16',true),
+('L-pnl-26','cec-risen-energy-co-ltd-rsm132-8-695bhdg','panel','S1',8300,9999,'2026-09-16',true),
+('L-pnl-27','cec-trina-solar-coltd-tsm-695neg21c20','panel','S1',8300,9999,'2026-09-16',true),
+('L-pnl-28','cec-risen-energy-co-ltd-rsm132-8-690bhdg','panel','S1',8300,9999,'2026-09-16',true),
+('L-pnl-29','cec-trina-solar-coltd-tsm-690neg21c20','panel','S1',8300,9999,'2026-09-16',true),
+('L-pnl-30','cec-risen-energy-co-ltd-rsm132-8-685bhdg','panel','S1',8200,9999,'2026-09-16',true),
+('L-pnl-31','cec-trina-solar-coltd-tsm-685neg21c20','panel','S1',8200,9999,'2026-09-16',true),
+('L-pnl-32','cec-rec-group-rec680aa-pro-l','panel','S1',8200,9999,'2026-09-16',true),
+('L-pnl-33','cec-risen-energy-co-ltd-rsm132-8-680bhdg','panel','S1',8200,9999,'2026-09-16',true),
+('L-pnl-34','cec-trina-solar-coltd-tsm-680neg21c20','panel','S1',8200,9999,'2026-09-16',true),
+('L-pnl-35','cec-risen-energy-co-ltd-rsm132-8-675bhdg','panel','S1',8100,9999,'2026-09-16',true),
+('L-pnl-36','cec-trina-solar-coltd-tsm-675neg21c20','panel','S1',8100,9999,'2026-09-16',true),
+('L-pnl-37','cec-rec-group-rec670aa-pro-l','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-38','cec-risen-energy-co-ltd-rsm132-8-670bhdg','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-39','cec-risen-energy-co-ltd-rsm132-8-670bmdg','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-40','cec-risen-energy-co-ltd-rsm132-8-670m','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-41','cec-trina-solar-tsm-670de21','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-42','cec-trina-solar-tsm-670deg21c20','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-43','cec-trina-solar-coltd-tsm-670neg21c20','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-44','cec-risen-energy-co-ltd-rsm132-8-665bhdg','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-45','cec-risen-energy-co-ltd-rsm132-8-665bmdg','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-46','cec-risen-energy-co-ltd-rsm132-8-665m','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-47','cec-trina-solar-tsm-665de21','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-48','cec-trina-solar-tsm-665deg21c20','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-49','cec-trina-solar-coltd-tsm-665neg21c20','panel','S1',8000,9999,'2026-09-16',true),
+('L-pnl-50','cec-rec-group-rec660aa-pro-l','panel','S1',7900,9999,'2026-09-16',true),
+('L-pnl-51','cec-risen-energy-co-ltd-rsm132-8-660bhdg','panel','S1',7900,9999,'2026-09-16',true),
+('L-pnl-52','cec-risen-energy-co-ltd-rsm132-8-660bmdg','panel','S1',7900,9999,'2026-09-16',true),
+('L-pnl-53','cec-risen-energy-co-ltd-rsm132-8-660m','panel','S1',7900,9999,'2026-09-16',true),
+('L-pnl-54','cec-trina-solar-tsm-660de21','panel','S1',7900,9999,'2026-09-16',true),
+('L-pnl-55','cec-trina-solar-tsm-660deg21c20','panel','S1',7900,9999,'2026-09-16',true),
+('L-pnl-56','cec-trina-solar-coltd-tsm-660neg21c20','panel','S1',7900,9999,'2026-09-16',true),
+('L-pnl-57','cec-risen-energy-co-ltd-rsm132-8-655bhdg','panel','S1',7900,9999,'2026-09-16',true),
+('L-pnl-58','cec-risen-energy-co-ltd-rsm132-8-655bmdg','panel','S1',7900,9999,'2026-09-16',true),
+('L-pnl-59','cec-risen-energy-co-ltd-rsm132-8-655m','panel','S1',7900,9999,'2026-09-16',true),
+('L-pnl-60','cec-trina-solar-tsm-655de21','panel','S1',7900,9999,'2026-09-16',true),
+('L-pnl-61','cec-ja-solar-jam72d30-550-mb','panel','S1',6600,9999,'2026-09-16',true)
+ON CONFLICT (listing_id) DO UPDATE SET component_id = excluded.component_id, component_type = excluded.component_type, supplier_id = excluded.supplier_id, unit_price_php = excluded.unit_price_php, stock_units = excluded.stock_units, price_as_of = excluded.price_as_of, is_synthetic = excluded.is_synthetic;
+
 
 -- Presets. C2 is the build page's default.
 INSERT INTO public.configurations (configuration_id,household_id,name,panel_id,panel_count,inverter_id,battery_id,battery_count,series_panels_per_string,parallel_strings_per_mppt,used_mppt_count,other_cost_allowance_php,status) VALUES
