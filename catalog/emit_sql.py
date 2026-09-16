@@ -33,7 +33,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 CATALOG = ROOT.parent / "web" / "catalog.json"
-OUT = ROOT / "real_parts.sql"
+# Repo root, so there is one obvious file to copy into the SQL Editor.
+OUT = ROOT.parent / "REAL_PARTS.sql"
 
 # Column lists, copied from supabase/migrations/20260910143947_*.sql.
 COLUMNS = {
