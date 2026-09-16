@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -78,6 +79,18 @@ def main() -> int:
 
     built = json.loads(BUILT.read_text(encoding="utf-8"))
     live = json.loads(CONTRACT.read_text(encoding="utf-8"))
+
+    # 0. primary keys must be unique. Postgres rejects a whole migration with
+    # "ON CONFLICT DO UPDATE cannot affect row a second time" if not, and the
+    # message does not say which table.
+    for key, field in ID_FIELD.items():
+        rows = built.get(key)
+        if not isinstance(rows, list):
+            continue
+        dupes = [k for k, n in Counter(r.get(field) for r in rows).items() if n > 1]
+        if dupes:
+            fail(f"{key}.{field}: {len(dupes)} duplicate id(s), e.g. {dupes[:3]}. "
+                 f"The migration would fail on ON CONFLICT.")
 
     # 1. every key the app reads must be here, with the same type
     for key, value in live.items():

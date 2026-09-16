@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import re
 import ssl
@@ -246,8 +247,31 @@ def short_name(name: str, manufacturer: str = "") -> str:
     return f"{brand} {model}".strip() if brand and brand.lower() not in model.lower() else (model or name)
 
 
+def panel_id(name: str, used: set[str]) -> str:
+    """A stable id that is actually unique.
+
+    This used to be the slug truncated to 40 characters. The slug starts with
+    the manufacturer, so the cut landed before the model number and every
+    module from a maker with a long name collapsed onto one id — 94 collisions
+    across CEC, which Postgres rejects with "ON CONFLICT DO UPDATE cannot
+    affect row a second time".
+    """
+    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+    candidate = "cec-" + (slug or "unnamed")
+    if candidate in used:
+        candidate = f"cec-{slug}-{hashlib.md5(name.encode()).hexdigest()[:6]}"
+    suffix = 2
+    unique = candidate
+    while unique in used:
+        unique = f"{candidate}-{suffix}"
+        suffix += 1
+    return unique
+
+
 def panels(offline: bool):
-    out, dropped = [], {"make": 0, "small": 0, "odd": 0}
+    out, dropped = [], {"make": 0, "small": 0, "odd": 0, "dupe": 0}
+    seen_names: set[str] = set()
+    used_ids: set[str] = set()
     for row in rows(offline):
         maker = (row.get("Manufacturer") or "").strip()
         if not any(b in maker.lower() for b in PH_MAKES):
@@ -265,8 +289,15 @@ def panels(offline: bool):
             dropped["odd"] += 1
             continue
         name = row["Name"].strip()
+        if name in seen_names:
+            # CEC lists the same module more than once. Same module, one row.
+            dropped["dupe"] += 1
+            continue
+        seen_names.add(name)
+        pid = panel_id(name, used_ids)
+        used_ids.add(pid)
         out.append({
-            "panel_id": "cec-" + re.sub(r"[^a-z0-9]+", "-", name.lower())[:40],
+            "panel_id": pid,
             "name": name,
             "short_name": short_name(name, maker),
             "manufacturer": maker,
@@ -473,7 +504,7 @@ def main() -> int:
     print(f"wrote {OUT.name}  ({OUT.stat().st_size // 1024} KB)")
     print(f"  panels          {len(panel_list):>6,}   "
           f"dropped {dropped['make']:,} other makes, {dropped['small']:,} small, "
-          f"{dropped['odd']:,} unusable")
+          f"{dropped['odd']:,} unusable, {dropped['dupe']:,} duplicate names")
     print(f"  inverters       {len(inverter_list):>6,}   Deye SG04LP1-EU, 220/230 V")
     print(f"  batteries       {len(BATTERIES):>6,}   Deye RW-F10.2, 43.2-57.6 V")
     for config in configurations:
