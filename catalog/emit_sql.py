@@ -31,6 +31,7 @@ import argparse
 import json
 from pathlib import Path
 
+VERSION_TAG = "v4-shop-S3"
 STAMP = "see below"   # replaced with a content hash once the body is built
 ROOT = Path(__file__).resolve().parent
 CATALOG = ROOT.parent / "web" / "catalog.json"
@@ -83,7 +84,8 @@ DEMO_PARTS = {
     "panels": ("P550", "P450"),
     "inverters": ("I5000", "I3000"),
     "batteries": ("B512", "BHV"),
-    "suppliers": ("S1", "S2"),
+    # suppliers are handled above by "everything that is not ours", so that a
+    # future id collision cannot delete our own shop again.
 }
 
 
@@ -216,10 +218,12 @@ def main() -> int:
     # foreign key. Both have to go before the shops can, and our own shop must
     # not reuse their ids — see DEMO_SHOP in build.py.
     sql += [
-        "-- The demo offers reference the demo shops. Remove the offers first,",
-        "-- or the foreign key blocks removing the shops.",
-        "DELETE FROM public.listings WHERE supplier_id IN ('S1','S2');",
-        "DELETE FROM public.suppliers WHERE supplier_id IN ('S1','S2');",
+        f"-- Remove every offer that is not ours, then every shop that is not ours.",
+        f"-- Written this way rather than by listing demo ids, because listing ids",
+        f"-- is how this file broke once already: it deleted shops by id, and one",
+        f"-- version had used a demo id for our own shop.",
+        f"DELETE FROM public.listings WHERE supplier_id <> {lit(shop_id)};",
+        f"DELETE FROM public.suppliers WHERE supplier_id <> {lit(shop_id)};",
         "",
     ]
     if parts["suppliers"]:
@@ -259,18 +263,21 @@ def main() -> int:
     if not n_lst:
         sql.append("-- Suppliers and listings are empty on purpose.")
     sql.append("-- ---------------------------------------------------------------------")
-    sql.append("SELECT 'batteries' AS table_name, count(*) AS rows FROM public.batteries")
-    sql.append("UNION ALL SELECT 'configurations', count(*) FROM public.configurations")
-    sql.append("UNION ALL SELECT 'inverters', count(*) FROM public.inverters")
-    sql.append("UNION ALL SELECT 'listings', count(*) FROM public.listings")
-    sql.append("UNION ALL SELECT 'panels', count(*) FROM public.panels")
-    sql.append("UNION ALL SELECT 'suppliers', count(*) FROM public.suppliers")
+    sql.append("-- The first row names the file that ran. If it does not say")
+    sql.append(f"-- {VERSION_TAG!r}, you pasted an older copy.")
+    sql.append(f"SELECT {lit('>>> ' + VERSION_TAG)} AS table_name, '' AS rows")
+    sql.append("UNION ALL SELECT 'batteries', count(*)::text FROM public.batteries")
+    sql.append("UNION ALL SELECT 'configurations', count(*)::text FROM public.configurations")
+    sql.append("UNION ALL SELECT 'inverters', count(*)::text FROM public.inverters")
+    sql.append("UNION ALL SELECT 'listings', count(*)::text FROM public.listings")
+    sql.append("UNION ALL SELECT 'panels', count(*)::text FROM public.panels")
+    sql.append("UNION ALL SELECT 'suppliers', count(*)::text FROM public.suppliers")
     sql.append("ORDER BY table_name;")
 
     body = "\n".join(sql)
     import hashlib
     stamp = hashlib.sha256(body.encode()).hexdigest()[:10]
-    body = body.replace("VERSION see below", f"VERSION {stamp}")
+    body = body.replace("VERSION see below", f"{VERSION_TAG}  hash {stamp}")
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(body, encoding="utf-8")
 
