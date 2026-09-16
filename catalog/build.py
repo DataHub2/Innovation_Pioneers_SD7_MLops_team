@@ -171,11 +171,15 @@ HOUSEHOLD = {
 }
 
 # The build page hardcodes a preference for `C2`. Do not renumber these.
+#
+# The match string must be the full "SUN-xK-" prefix. A bare "6K-" also matches
+# "Deye SUN-3.6K-SG04LP1-EU", which silently gives C3 a 3.6 kW inverter with two
+# parallel strings on its single MPPT — 2 x 13.9 A against a 27 A limit.
 # configuration_id, label, panel_count, inverter match string, battery_count
 CONFIG_PLANS = [
-    ("C1", "Budget",   6,  "3K-",  1),
-    ("C2", "Balanced", 10, "5K-",  1),
-    ("C3", "Backup",   14, "6K-",  2),
+    ("C1", "Budget",   6,  "SUN-3K-",  1),
+    ("C2", "Balanced", 10, "SUN-5K-",  1),
+    ("C3", "Backup",   14, "SUN-6K-",  2),
 ]
 
 # What monitoring is simulated from, before anyone wires up real hardware.

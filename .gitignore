@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Nedladdad Lovable-källkod (tillfällig, ska inte in i repot)
+*.zip
+lovable-src/
+_src/
