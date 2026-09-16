@@ -1,0 +1,283 @@
+================================================================================
+ LOVABLE – VAD SOM SKA GÖRAS
+ Katalogdata: byt källa från hårdkodad demodata till vår backend
+================================================================================
+
+KORT VERSION
+------------
+En (1) ändring i en (1) fil. Byt kroppen i server-funktionen som hämtar
+katalogdata, så att den hämtar vår JSON istället för att returnera ett
+hårdkodat demo-objekt. Behåll demo-objektet som fallback. Klart.
+
+Ingen annan fil behöver röras. Inga beroenden behöver läggas till. Ingen
+databas, ingen nyckel, ingen miljövariabel.
+
+Detaljerna står i punkt 3 och 4 nedan. Läs punkt 7 innan du börjar.
+
+
+--------------------------------------------------------------------------------
+ 1. BAKGRUND
+--------------------------------------------------------------------------------
+
+Lovable-appen "Solar Builder" (sun-plan-build.lovable.app) visar idag påhittad
+demodata: "Demo Sun 450", "Demo Solar Shop A".
+
+Vi har byggt en backend som producerar riktiga delar: 3 368 solpaneler från
+NREL:s öppna CEC-lista, Deye hybrid-inverters och ett Deye-batteri, alla med
+specifikationer från tillverkarnas egna produktsidor.
+
+Din sida och vår backend är två separata saker. Vi äger backend-filen
+(web/catalog.json i ett publikt GitHub-repo). Du äger Lovable-projektet.
+Ingen av oss behöver röra den andras kod efter den här enda ändringen.
+
+Vi har läst ut exakt vad din server-funktion returnerar idag och byggt vår
+backend så att den returnerar exakt samma sak — samma åtta nycklar, samma
+fältnamn, samma typer. Det är alltså inte en omskrivning av formen, bara ett
+byte av var datan kommer ifrån.
+
+
+--------------------------------------------------------------------------------
+ 2. VAD SOM REDAN ÄR KLART OCH VERIFIERAT
+--------------------------------------------------------------------------------
+
+Filens adress (publik, ingen nyckel krävs):
+  https://raw.githubusercontent.com/DataHub2/Innovation_Pioneers_SD7_MLops_team/main/web/catalog.json
+
+Repo      : github.com/DataHub2/Innovation_Pioneers_SD7_MLops_team (publikt)
+Commit    : 8b50cf5
+Storlek   : ca 1 001 KB
+Innehåll : 3 368 paneler, 4 inverters, 1 batteri, 3 systempreset
+
+Payloaden har dessa åtta nycklar (detta är kontraktet):
+  household          objekt
+  panels             lista
+  inverters          lista
+  batteries          lista
+  suppliers          lista      (tom tills vidare – se punkt 8)
+  listings           lista      (tom tills vidare – se punkt 8)
+  configurations     lista      (C1 Budget, C2 Balanced, C3 Backup)
+  installedSystem    objekt     (pekar på C2)
+
+Vi har kört appens egna uppslag mot filen och de löser ut utan krasch:
+  configurations.find(c => c.configuration_id === 'C2')  ->  C2 Balanced
+  C2.panel_id     ->  JA Solar JAM72D30-550/MB
+  C2.inverter_id  ->  Deye SUN-5K-SG04LP1-EU
+  C2.battery_id   ->  Deye RW-F10.2
+  installedSystem.configuration_id  ->  C2  (finns i configurations)
+
+
+--------------------------------------------------------------------------------
+ 3. VAD DU SKA GÖRA – STEG FÖR STEG
+--------------------------------------------------------------------------------
+
+STEG 1. Öppna Lovable-projektet: lovp_3nnha08p439h5svyvjfgqtq615
+
+STEG 2. Hitta rätt funktion.
+        Den ligger i src/ och är den som används av  queryKey: ['catalog'].
+        Sök i koden efter  'catalog'  eller efter  createServerFn.
+        Den bygger idag ett objekt med nycklarna household, panels,
+        inverters, batteries, suppliers, listings, configurations,
+        installedSystem och returnerar det.
+
+STEG 3. Ersätt funktionens kropp med koden i punkt 4.
+        Behåll det nuvarande demo-objektet i filen — det ska användas som
+        fallback. Se punkt 4.
+
+STEG 4. Låt queryKey ['catalog'] och dess staleTime vara precis som de är.
+        Byt inte namn på funktionen om du inte måste.
+
+STEG 5. Publicera (Lovable deployar automatiskt).
+
+STEG 6. Följ kontrollen i punkt 6.
+
+
+--------------------------------------------------------------------------------
+ 4. KODEN SOM SKA IN
+--------------------------------------------------------------------------------
+
+Klistra in detta i Lovable-chatten om du vill att den gör ändringen åt dig.
+Texten mellan linjerna är själva instruktionen:
+
+--------------------------------------------------------------------------------
+Find the server function that loads the catalog data (the one used by
+queryKey: ['catalog']). It currently returns a hardcoded demo object with the
+keys household, panels, inverters, batteries, suppliers, listings,
+configurations, installedSystem.
+
+Replace its body so it fetches the data from a URL instead, but keep the
+existing demo object in the file and return it if anything goes wrong, so the
+page can never break:
+
+const CATALOG_URL =
+  'https://raw.githubusercontent.com/DataHub2/Innovation_Pioneers_SD7_MLops_team/main/web/catalog.json'
+
+// The payload must have these or the app throws on .find() / .household.
+// Checked rather than trusted: a 200 response with the wrong shape is the
+// failure mode that a try/catch alone does not catch.
+function isUsable(d: unknown): boolean {
+  const c = d as Record<string, any> | null
+  return !!c
+    && !!c.household
+    && Array.isArray(c.panels) && c.panels.length > 0
+    && Array.isArray(c.inverters) && c.inverters.length > 0
+    && Array.isArray(c.batteries) && c.batteries.length > 0
+    && Array.isArray(c.configurations) && c.configurations.length > 0
+    && !!c.installedSystem
+}
+
+export const fetchCatalog = createServerFn({ method: 'GET' }).handler(async () => {
+  try {
+    // ?v= busts GitHub's ~5 minute CDN cache so refreshes are immediate.
+    const res = await fetch(`${CATALOG_URL}?v=${Date.now()}`, { cache: 'no-store' })
+    if (!res.ok) throw new Error(`catalog HTTP ${res.status}`)
+    const data = await res.json()
+    if (!isUsable(data)) throw new Error('catalog shape not usable')
+    return data
+  } catch (error) {
+    console.error('[catalog] live fetch failed, using demo data:', error)
+    return DEMO_CATALOG   // <- the object literal you are replacing; keep it
+  }
+})
+
+Keep the query key ['catalog'] and its staleTime. Do not rename anything.
+--------------------------------------------------------------------------------
+
+TRE SAKER ATT SE UPP MED:
+
+  a) DEMO_CATALOG är en platshållare. Byt ut den mot namnet på det demo-objekt
+     som redan finns i filen. Objektet ska INTE raderas.
+
+  b) createServerFn importeras troligen redan högst upp i filen. Lägg inte in
+     en dubbel import.
+
+  c) Om filen redan har ett return-objekt med samma åtta nycklar kan du
+     klistra in kroppen ovan rakt över — formen är identisk. Inga typer
+     behöver ändras.
+
+
+--------------------------------------------------------------------------------
+ 5. KONTROLLERA SJÄLV ATT URL:EN FUNKAR
+--------------------------------------------------------------------------------
+
+Innan du börjar, kör detta i en terminal. Det är en enda rad — kopiera hela:
+
+curl -s "https://raw.githubusercontent.com/DataHub2/Innovation_Pioneers_SD7_MLops_team/main/web/catalog.json" | python3 -c "import json,sys; d=json.load(sys.stdin); need=['household','panels','inverters','batteries','suppliers','listings','configurations','installedSystem']; print('saknas   :', [k for k in need if k not in d] or 'inget - alla 8 finns'); print('paneler  :', len(d['panels'])); print('inverters:', len(d['inverters'])); print('preset   :', [c['configuration_id'] for c in d['configurations']])"
+
+Förväntat svar, exakt:
+
+  saknas   : inget - alla 8 finns
+  paneler  : 3368
+  inverters: 4
+  preset   : ['C1', 'C2', 'C3']
+
+Får du något annat, eller ett felmeddelande: stanna och hör av dig. Då är
+något fel på vår sida och du ska inte publicera ändringen förrän det är löst.
+
+OBS: filen innehåller även tre extra nycklar — built_utc, source och counts.
+Det är meningen, se punkt 7. Kommandot ovan filtrerar bort dem, så att du
+bara ser det som faktiskt spelar roll.
+
+
+--------------------------------------------------------------------------------
+ 6. EFTERÅT – SÅ VERIFIERAR DU ATT DET TOG
+--------------------------------------------------------------------------------
+
+1. Öppna /build.
+   Del-listorna ska visa riktiga modeller:
+     panel    -> JA Solar JAM72D30-550/MB
+     inverter -> Deye SUN-5K-SG04LP1-EU
+   Visar de fortfarande "Demo Sun 450" har deployen inte tagit ändringen.
+
+2. Systempresetet ska heta "Balanced (C2)" och visa 10 paneler, Deye SUN-5K
+   och 1 batteri.
+
+3. Öppna /compare. Tre preset ska listas: C1 Budget, C2 Balanced, C3 Backup.
+
+4. Öppna /monitoring. Den ska visa samma panel/inverter/batteri som C2 ovan.
+
+Om steg 1 visar demodata: öppna webbläsarkonsolen och leta efter
+"[catalog] live fetch failed". Då föll den tillbaka på demodata och
+anledningen står i loggen.
+
+Om det INTE står något i loggen men du ändå ser demodata — då körs den gamla
+koden fortfarande. Publicera igen.
+
+
+--------------------------------------------------------------------------------
+ 7. RÖR INTE DESSA SAKER
+--------------------------------------------------------------------------------
+
+Två saker i vår payload ser ut som misstag. De är avsiktliga.
+
+  * Fältet heter  bms_family  — på BÅDE batteriet och invertern.
+    Din kontroll är:  battery.bms_family === inverter.bms_family
+    En tidigare version av vår builder skrev battery_comm_family istället.
+    Då blir båda sidor undefined, och undefined === undefined är true — så
+    kontrollen GODKÄNDES av fel anledning istället för att underkännas.
+    Byt inte namn på detta fält. Vår kontrolltest fäller bygget om det
+    återkommer.
+
+  * Extra nycklar:  built_utc, source, counts.
+    Appen ignorerar dem helt (verifierat mot samtliga 31 chunks i din bundle).
+    De finns för att göra en gammal fil uppenbar vid felsökning, och vår egen
+    web/index.html läser built_utc och source för sin "Built ..."-rad.
+
+
+--------------------------------------------------------------------------------
+ 8. VAD SOM FORTFARANDE SAKNAS – INTE DITT PROBLEM
+--------------------------------------------------------------------------------
+
+Priser och lager. Tabellerna suppliers och listings är tomma, så:
+
+  * "Budget"-kontrollen visar "Needs changing"
+  * "Stock"-kontrollen visar "Needs changing"
+  * totalsumman visas inte
+  * steg 4 "My Checklist" genererar ingen inköpslista
+
+Detta är RÄTT och INTE en bugg i din kod. Vi har inga filippinska priser än,
+och att gissa en summa skulle göra budgetkontrollen till en lögn. Det fylls i
+utan att du rör något: vi lägger in rader, kör om bygget och pushar.
+
+Monitoring-grafen är fortfarande syntetisk. De 2 016 mätvärdena simulerades
+för det gamla demosystemet (4,4 kW). Vårt C2 är 5,5 kW (10 x 550 W). Sidan
+kommer alltså att visa 5,5 kW i rubriken medan kurvan visar det gamla
+systemet. Synligt, milt inkonsekvent, ofarligt.
+
+Sidfoten säger "All products, suppliers, prices and readings are fictional."
+Panelerna och invertrarna är nu riktiga publicerade specifikationer. Vill du
+kan den meningen mjukas upp till att bara priser och mätvärden är syntetiska.
+Helt valfritt.
+
+
+--------------------------------------------------------------------------------
+ 9. CHECKLISTA
+--------------------------------------------------------------------------------
+
+[ ] 1. Jag har kört curl-kommandot i punkt 5 och fick de åtta nycklarna
+[ ] 2. Jag har hittat server-funktionen bakom queryKey ['catalog']
+[ ] 3. Jag har bytt ut funktionens kropp mot koden i punkt 4
+[ ] 4. Demo-objektet ligger KVAR i filen som fallback
+[ ] 5. queryKey ['catalog'] och staleTime är orörda
+[ ] 6. Inga dubbla importer av createServerFn
+[ ] 7. Jag har publicerat
+[ ] 8. /build visar JA Solar JAM72D30-550/MB (inte Demo Sun 450)
+[ ] 9. Presetet heter Balanced (C2)
+[ ] 10. /compare visar C1, C2 och C3
+
+Är punkt 1 uppfylld men något av 8-10 inte: hör av dig med vad
+webbläsarkonsolen säger. Är punkt 1 INTE uppfylld: hör av dig, publicera inte.
+
+
+--------------------------------------------------------------------------------
+ FRÅGOR
+--------------------------------------------------------------------------------
+
+Backend-filen, innehållet i katalogen, priser, paneler, inverters:
+  -> vår sida
+
+Lovable-projektet, server-funktioner, deploy, utseende:
+  -> din sida
+
+Full teknisk bakgrund finns i docs/LOVABLE_HANDOFF.md i samma repo.
+
+================================================================================
