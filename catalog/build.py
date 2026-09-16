@@ -436,7 +436,10 @@ BATTERY_PHP = 45000.0
 SEED_STOCK = 9999
 SEED_PANEL_LIMIT = 60          # must match emit_sql.py --panel-limit
 
-DEMO_SHOP = {"supplier_id": "S1", "name": "Demo Solar Shop",
+# Deliberately NOT S1/S2: those are the demo shop ids, and the migration
+# deletes them. Reusing one would delete our own supplier and the foreign key
+# from our listings would abort the whole transaction.
+DEMO_SHOP = {"supplier_id": "S3", "name": "Demo Solar Shop",
              "location": "Metro Manila", "is_synthetic": True}
 
 
@@ -452,7 +455,7 @@ def write_seed(panel_list, inverter_list) -> None:
     """Scaffold listings.seed.json with real ids and blank prices to fill in."""
     def row(lid: str, kind: str, cid: str, priced: dict) -> dict:
         return {"listing_id": lid, "component_type": kind, "component_id": cid,
-                "supplier_id": "S1", "unit_price_php": sample_price(kind, priced),
+                "supplier_id": DEMO_SHOP["supplier_id"], "unit_price_php": sample_price(kind, priced),
                 "stock_units": SEED_STOCK, "price_as_of": None,
                 "is_synthetic": True}
 

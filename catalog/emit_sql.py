@@ -204,18 +204,27 @@ def main() -> int:
         block("batteries", parts["batteries"], "Battery"),
     ]
 
+    # The demo offers point at the demo shops, and listings.supplier_id is a
+    # foreign key. Both have to go before the shops can, and our own shop must
+    # not reuse their ids — see DEMO_SHOP in build.py.
+    sql += [
+        "-- The demo offers reference the demo shops. Remove the offers first,",
+        "-- or the foreign key blocks removing the shops.",
+        "DELETE FROM public.listings WHERE supplier_id IN ('S1','S2');",
+        "DELETE FROM public.suppliers WHERE supplier_id IN ('S1','S2');",
+        "",
+    ]
     if parts["suppliers"]:
-        sql.append(block("suppliers", parts["suppliers"], "Shops"))
+        sql.append(block("suppliers", parts["suppliers"], "Shop"))
         sql.append(block("listings", parts["listings"],
-                         "Prices. Only rows with a real quote."))
+                         f"{len(parts['listings'])} offers — every part in this "
+                         f"file, so nothing reads 'No stock available'. "
+                         f"is_synthetic = true; replace with real quotes."))
     else:
         sql += [
-            "-- suppliers and listings are left empty on purpose: we have no",
-            "-- Philippine quote yet, and a guessed price makes the budget check",
-            "-- lie. The app reports 'Needs changing' for Budget and Stock, which",
-            "-- is accurate. Add rows here when a real quote exists.",
-            "DELETE FROM public.listings;",
-            "DELETE FROM public.suppliers;",
+            "-- suppliers and listings are left empty on purpose: no Philippine",
+            "-- quote yet, and a guessed price makes the budget check lie. The app",
+            "-- reports 'Needs changing' for Budget and Stock, which is accurate.",
             "",
         ]
 
@@ -233,11 +242,14 @@ def main() -> int:
     sql.append("")
     sql.append("COMMIT;")
     sql.append("")
+    n_sup, n_lst = len(parts["suppliers"]), len(parts["listings"])
     sql.append("-- ---------------------------------------------------------------------")
     sql.append("-- Ran it? Then the SQL Editor shows this table straight away.")
-    sql.append(f"-- Expect: panels {len(panels)}, inverters {len(parts['inverters'])}, "
-               f"batteries {len(parts['batteries'])}, configurations {len(parts['configurations'])},")
-    sql.append("-- suppliers 0, listings 0. Suppliers and listings are empty on purpose.")
+    sql.append(f"-- Expect: panels {len(panels)} · inverters {len(parts['inverters'])} · "
+               f"batteries {len(parts['batteries'])} · configurations {len(parts['configurations'])} · "
+               f"suppliers {n_sup} · listings {n_lst}")
+    if not n_lst:
+        sql.append("-- Suppliers and listings are empty on purpose.")
     sql.append("-- ---------------------------------------------------------------------")
     sql.append("SELECT 'batteries' AS table_name, count(*) AS rows FROM public.batteries")
     sql.append("UNION ALL SELECT 'configurations', count(*) FROM public.configurations")
