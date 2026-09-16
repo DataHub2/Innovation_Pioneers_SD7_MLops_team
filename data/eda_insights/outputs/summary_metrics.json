@@ -1,0 +1,69 @@
+{
+  "rows": 7140,
+  "entities_total": 229,
+  "entities_countries": 214,
+  "entities_aggregates": 15,
+  "aggregate_list": [
+    "Channel Islands",
+    "East Asia and Pacific (WB)",
+    "Europe and Central Asia (WB)",
+    "European Union (27)",
+    "High-income countries",
+    "Kosovo",
+    "Latin America and Caribbean (WB)",
+    "Low-income countries",
+    "Lower-middle-income countries",
+    "Middle East, North Africa, Afghanistan and Pakistan (WB)",
+    "North America (WB)",
+    "South Asia (WB)",
+    "Sub-Saharan Africa (WB)",
+    "Upper-middle-income countries",
+    "World"
+  ],
+  "year_min": 1990,
+  "year_max": 2024,
+  "n_years": 35,
+  "null_cells": 0,
+  "zero_cells": 2950,
+  "zero_share_pct": 41.32,
+  "negative_cells": 0,
+  "entities_always_zero": 49,
+  "coverage_first_year": {
+    "1990": 102,
+    "1995": 152,
+    "2000": 224,
+    "2010": 228,
+    "2024": 228
+  },
+  "latest_year_counts": {
+    "2024": 214
+  },
+  "buggy_top15_sum": 1055304276,
+  "corrected_top15_sum": 456507645,
+  "bug_overstatement_pct": 131.2,
+  "bug_aggregates_leaking_through": [
+    "Sub-Saharan Africa (WB)",
+    "East Asia and Pacific (WB)",
+    "Middle East, North Africa, Afghanistan and Pakistan (WB)"
+  ],
+  "world_2023": 677005200,
+  "world_2024": 657256770,
+  "sum_countries_2024": 655233852,
+  "ssa_share_2000_pct": 37.7,
+  "ssa_share_2024_pct": 88.1,
+  "countries_worse_2010_2024": 21,
+  "people_added_by_worsening_countries": 60400538,
+  "annual_change_pct": {
+    "2000_2010": -1.4,
+    "2010_2024": -3.97
+  },
+  "projection_2030_at_2010_2024_pace": 508772098,
+  "projection_2030_note": "Linear-in-log extrapolation of the 2010-2024 average annual decline. Optimistic: assumes every country keeps its recent pace.",
+  "crosscheck_method_md": {
+    "world_2023_from_csv": 677005200,
+    "world_2023_claimed_in_METHOD_md": 677000000,
+    "philippines_2023_from_csv": 2297824,
+    "philippines_2023_claimed_in_METHOD_md": 2300000,
+    "verdict": "The pitch figures in docs/METHOD.md 8.2 reproduce from this file."
+  }
+}

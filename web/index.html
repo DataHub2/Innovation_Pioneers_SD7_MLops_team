@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Real parts — Solar Builder</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap" />
+<style>
+  :root{
+    --background:oklch(100% 0 0);
+    --foreground:oklch(27% .06 262);
+    --card:oklch(100% 0 0);
+    --muted:oklch(96.5% .01 250);
+    --muted-foreground:oklch(50% .04 258);
+    --border:oklch(92% .012 255);
+    --solar:oklch(56% .15 152);
+    --load:oklch(86% .17 88);
+    --load-foreground:oklch(50% .12 70);
+    --battery:oklch(55% .17 252);
+    --destructive:oklch(57% .22 27);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--background);color:var(--foreground);
+    font-family:Manrope,ui-sans-serif,system-ui,sans-serif;
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:48px 24px 96px}
+  h1,h2{font-family:Sora,ui-sans-serif,sans-serif;letter-spacing:-.02em;margin:0}
+  h1{font-size:2.4rem;font-weight:600;line-height:1.15}
+  h2{font-size:1.45rem;font-weight:600}
+  .eyebrow{font-size:.8em;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--solar);margin-right:.6rem}
+  .muted{color:var(--muted-foreground)}
+  .badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);
+    background:var(--muted);border-radius:999px;padding:5px 12px;font-size:.8rem;
+    font-weight:600;letter-spacing:.02em;color:var(--muted-foreground)}
+  .dot{width:8px;height:8px;border-radius:999px;background:var(--solar)}
+  header .badge{margin-bottom:22px}
+  header .lead{font-size:1.15rem;margin:16px 0 0}
+  header .note{font-size:1rem;margin:10px 0 0;color:var(--muted-foreground)}
+  .grid{display:grid;gap:16px}
+  .stats{grid-template-columns:1fr 1fr;margin-top:32px}
+  .card{border:1px solid var(--border);border-radius:16px;padding:20px}
+  .card p.label{font-size:.95rem;font-weight:600;margin:0;color:var(--muted-foreground)}
+  .card p.value{font-family:Sora;font-size:2rem;font-weight:600;margin:4px 0 0;
+    font-variant-numeric:tabular-nums}
+  section{margin-top:52px}
+  .picker{border:1px solid var(--border);border-radius:16px;padding:20px;margin-top:18px}
+  .picker>*+*{margin-top:18px}
+  label.field{display:block;font-size:.95rem;font-weight:600;margin-bottom:6px}
+  select,input[type=number]{width:100%;min-height:48px;padding:10px 12px;border-radius:10px;
+    border:1px solid var(--border);background:var(--card);color:inherit;font:inherit;
+    font-size:1rem}
+  .two{display:grid;grid-template-columns:1fr 150px;gap:14px}
+  .headline{display:flex;gap:12px;align-items:flex-start;font-weight:700;font-size:1.1rem;
+    border-top:1px solid var(--border);padding-top:18px}
+  .headline .mark{flex:none;width:26px;height:26px;margin-top:2px;border-radius:999px;
+    display:grid;place-items:center;font-size:.85rem;color:#fff}
+  .headline.ok{color:var(--solar)}  .headline.ok .mark{background:var(--solar)}
+  .headline.bad{color:var(--destructive)} .headline.bad .mark{background:var(--destructive)}
+  ul.checks{list-style:none;padding:0;margin:16px 0 0}
+  ul.checks li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;
+    border-top:1px solid var(--border)}
+  ul.checks .mark{flex:none;width:22px;height:22px;margin-top:3px;border-radius:999px;
+    display:grid;place-items:center;font-size:.75rem;color:#fff}
+  ul.checks li.ok .mark{background:var(--solar)}
+  ul.checks li.bad .mark{background:var(--destructive)}
+  ul.checks li.unknown .mark{background:var(--muted);color:var(--muted-foreground)}
+  ul.checks .fix{display:block;color:var(--muted-foreground);font-size:.95rem;margin-top:2px}
+  details{border:1px solid var(--border);border-radius:12px;margin-top:16px}
+  summary{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;
+    font-size:1rem;font-weight:600;cursor:pointer;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary .hide{display:none;color:var(--muted-foreground);font-weight:500}
+  details[open] summary .show{display:none} details[open] summary .hide{display:inline}
+  details .body{border-top:1px solid var(--border);padding:14px 16px;font-size:.95rem;
+    color:var(--muted-foreground)}
+  details .body dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0}
+  details .body dt{font-weight:600;color:var(--foreground)}
+  details .body dd{margin:0;font-variant-numeric:tabular-nums}
+  .search{max-width:300px}
+  .tablewrap{margin-top:16px;border:1px solid var(--border);border-radius:14px;
+    overflow:auto;max-height:420px}
+  table{width:100%;border-collapse:collapse;font-size:1rem}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border)}
+  th{font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;
+    color:var(--muted-foreground)}
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+  tbody tr:hover{background:var(--muted)}
+  .box{display:flex;gap:12px;border:1px solid var(--load);
+    background:color-mix(in oklab,var(--load) 14%,transparent);
+    border-radius:14px;padding:18px;margin-top:22px}
+  .box .mark{flex:none;font-size:1.1rem}
+  .box p{margin:0 0 6px} .box p:last-child{margin:0}
+  @media(max-width:700px){
+    .stats,.two{grid-template-columns:1fr}
+    h1{font-size:1.85rem}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="badge"><span class="dot"></span>Real parts, not made-up ones</span>
+    <h1><span class="eyebrow">Real parts</span>Real parts, not made-up ones.</h1>
+    <p class="lead">
+      The parts in the demo are invented. These are not. They come from a public
+      list of solar equipment.
+    </p>
+    <p class="note">
+      There are no prices yet. Nothing here is a quote or a reason to buy.
+    </p>
+  </header>
+
+  <div class="grid stats">
+    <div class="card"><p class="label">Solar panels</p><p class="value" id="nPanels">—</p></div>
+    <div class="card"><p class="label">Inverters</p><p class="value" id="nInverters">—</p></div>
+  </div>
+
+  <section>
+    <h2>Will these parts work together?</h2>
+    <p class="muted" style="margin:8px 0 0">
+      Pick a panel and an inverter. We check a few simple things for you.
+    </p>
+
+    <div class="picker">
+      <div class="two">
+        <div>
+          <label class="field" for="panel">Which panel?</label>
+          <select id="panel"></select>
+        </div>
+        <div>
+          <label class="field" for="count">How many?</label>
+          <input id="count" type="number" min="1" max="30" step="1" value="8" />
+        </div>
+      </div>
+      <div>
+        <label class="field" for="inv">Which inverter?</label>
+        <select id="inv"></select>
+      </div>
+
+      <div class="headline" id="verdict"></div>
+      <ul class="checks" id="checks"></ul>
+
+      <details>
+        <summary><span>Show the numbers</span>
+          <span><span class="show">Show</span><span class="hide">Hide</span></span></summary>
+        <div class="body" id="numbers"></div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <h2>The panels</h2>
+    <p class="muted" style="margin:8px 0 0">
+      Everything we have, with the details we need to check them.
+    </p>
+    <div style="margin-top:14px">
+      <input id="filter" class="search" placeholder="Search a make or model…" />
+      <span id="searchCount" class="muted" style="margin-left:12px;font-size:.95rem"></span>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Panel</th><th>Size</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="box">
+    <span class="mark">⚠</span>
+    <div>
+      <p><b>Not everything is here yet.</b></p>
+      <p>We have panels and inverters. <b>We do not have batteries.</b> We also do not
+      have prices or shops.</p>
+      <p>Some details are missing for some inverters, so a few checks say
+      “cannot check yet”. Common brands such as Growatt and Goodwe are in the list.
+      Some others are not.</p>
+    </div>
+  </div>
+
+  <p class="muted" style="font-size:.85rem;margin-top:32px" id="provenance"></p>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const num = n => n.toLocaleString('en-PH');
+
+// The questions and the fixes are the same wording the app already uses,
+// so this page reads like the rest of Solar Builder.
+const QUESTION = {
+  quantities: 'Do you have the right number of parts?',
+  'pv-capacity': 'Can the inverter handle this amount of solar panels?',
+  voltage: "Do the panels work within the inverter's voltage range?",
+  current: "Is the panel current within the inverter's limit?",
+  mains: "Is the inverter made for a Philippine home?",
+  inputs: "Does the inverter have the solar input this setup needs?",
+};
+const FIX = {
+  quantities: 'Enter whole numbers above zero.',
+  'pv-capacity': 'Use fewer panels, a smaller panel model, or a bigger inverter.',
+  voltage: 'Change the number of panels, or choose a different panel or inverter.',
+  current: 'Choose a panel with lower current, or a different inverter.',
+  mains: 'This one is built for American wiring. Choose another inverter.',
+  inputs: 'Choose an inverter with a solar input.',
+  unknown: 'We do not have this detail for every inverter yet.',
+};
+
+// A Philippine home is 230 V. A 240 V inverter is fine; 208 V is US
+// three-phase and 120 V is US split-phase, and neither belongs in a house.
+const HOME_MAINS_V = 230;
+const usableMains = v => v == null || Math.abs(v - HOME_MAINS_V) <= 15;
+
+let panelList = [], inverterList = [];
+
+function checksFor(panel, inverter, count) {
+  const out = [];
+  const add = (key, ok) => out.push({key, ok});
+
+  const whole = Number.isInteger(count) && count > 0;
+  add('quantities', whole);
+  if (!whole) return out;
+
+  add('pv-capacity', count * panel.rated_power_w / 1000 <= inverter.max_pv_power_kw);
+
+  const vmp = count * panel.vmp_v, voc = count * panel.voc_v;
+  add('voltage', vmp >= inverter.mppt_min_v && voc < inverter.max_dc_voltage_v);
+
+  add('current', inverter.max_mppt_current_a == null ||
+    panel.imp_a <= inverter.max_mppt_current_a);
+
+  add('mains', usableMains(inverter.ac_voltage_v));
+  add('inputs', (inverter.mppt_count ?? 1) >= 1);
+  return out;
+}
+
+function render() {
+  const panel = panelList[+$('panel').value];
+  const inverter = inverterList[+$('inv').value];
+  const count = Math.max(1, Math.floor(+$('count').value || 1));
+  const checks = checksFor(panel, inverter, count);
+  const failed = checks.filter(c => !c.ok);
+
+  const good = failed.length === 0;
+  $('verdict').className = 'headline ' + (good ? 'ok' : 'bad');
+  $('verdict').innerHTML = '<span class="mark">' + (good ? '✓' : '✕') + '</span><span>' +
+    (good ? 'Looks OK in this demo' : 'Needs changing') +
+    '<span class="muted" style="display:block;font-weight:500;font-size:1rem">' +
+    count + ' ' + panel.short_name + (count === 1 ? '' : 's') + ' with the ' +
+    inverter.short_name +
+    '</span></span>';
+
+  const rows = checks.map(c =>
+    '<li class="' + (c.ok ? 'ok' : 'bad') + '"><span class="mark">' +
+    (c.ok ? '✓' : '✕') + '</span><span>' + QUESTION[c.key] +
+    (c.ok ? '' : '<span class="fix">' + FIX[c.key] + '</span>') + '</span></li>');
+
+  // The battery checks cannot run at all: there is no battery in the list yet.
+  rows.push('<li class="unknown"><span class="mark">–</span><span>' +
+    'We cannot check a battery yet.' +
+    '<span class="fix">We have no batteries in the list. That needs the maker\u2019s ' +
+    'datasheet, and we will not guess a size.</span></span></li>');
+  $('checks').innerHTML = rows.join('');
+
+  $('numbers').innerHTML = '<dl>' +
+    '<dt>Panels</dt><dd>' + count + ' × ' + num(panel.rated_power_w) + ' watts</dd>' +
+    '<dt>Panel voltage</dt><dd>' + (count * panel.voc_v).toFixed(1) +
+      ' volts (the inverter takes up to ' + inverter.max_dc_voltage_v + ')</dd>' +
+    '<dt>Panel current</dt><dd>' + panel.imp_a.toFixed(2) +
+      ' amps (the inverter takes up to ' +
+      (inverter.max_mppt_current_a ?? '—') + ')</dd>' +
+    '<dt>Inverter size</dt><dd>' + inverter.rated_ac_power_kw +
+      ' kW, and it takes up to ' + inverter.max_pv_power_kw + ' kW of panels</dd>' +
+    '<dt>Mains voltage</dt><dd>' + (inverter.ac_voltage_v ?? '—') +
+      ' volts. A Philippine home is 230 volts.</dd>' +
+    '</dl>';
+}
+
+function renderRows() {
+  const q = $('filter').value.trim().toLowerCase();
+  const hits = q ? panelList.filter(p =>
+    (p.name + ' ' + p.manufacturer).toLowerCase().includes(q)) : panelList;
+  const slice = hits.slice(0, 300);
+  $('searchCount').textContent = hits.length.toLocaleString('en-PH') +
+    (hits.length > slice.length ? ' — showing 300' : '');
+  $('rows').innerHTML = slice.map(p => '<tr><td>' + p.short_name + '</td><td class="num">' +
+    num(Math.round(p.rated_power_w)) + ' W</td></tr>').join('');
+}
+
+fetch('catalog.json').then(r => r.json()).then(data => {
+  panelList = data.panels.slice().sort((a, b) => b.rated_power_w - a.rated_power_w);
+  inverterList = data.inverters.slice()
+    .sort((a, b) => a.rated_ac_power_kw - b.rated_ac_power_kw);
+
+  $('nPanels').textContent = num(panelList.length);
+  $('nInverters').textContent = num(inverterList.length);
+
+  $('panel').innerHTML = panelList.map((p, i) =>
+    '<option value="' + i + '">' + Math.round(p.rated_power_w) + ' W · ' + p.short_name +
+    '</option>').join('');
+  $('inv').innerHTML = inverterList.map((v, i) =>
+    '<option value="' + i + '">' + v.rated_ac_power_kw + ' kW · ' + v.short_name +
+    (v.hybrid ? ' · works with a battery' : '') + '</option>').join('');
+
+  // Open on an ordinary home-sized system that fits, so the first thing a
+  // visitor sees is a pass rather than a wall of problems.
+  const nearest = (list, get, target) => list.reduce((best, item, i) =>
+    Math.abs(get(item) - target) < Math.abs(get(list[best]) - target) ? i : best, 0);
+  $('panel').value = nearest(panelList, p => p.rated_power_w, 550);
+  // Prefer a make people recognise, that can take a battery, and a normal home size.
+  const KNOWN = ['growatt', 'goodwe', 'deye', 'sungrow', 'solis', 'solax', 'huawei',
+                 'victron', 'fronius', 'sma', 'solaredge'];
+  const wellKnown = v => KNOWN.some(b => v.name.toLowerCase().includes(b));
+  const score = v => (wellKnown(v) ? 0 : 100) + (v.hybrid ? 0 : 10) +
+    Math.abs(v.rated_ac_power_kw - 5);
+  const suited = inverterList.filter(v => usableMains(v.ac_voltage_v));
+  $('inv').value = inverterList.indexOf(
+    suited.reduce((best, v) => (score(v) < score(best) ? v : best), suited[0]));
+  for (const n of [10, 8, 6, 12, 4]) {
+    if (checksFor(panelList[+$('panel').value], inverterList[+$('inv').value], n)
+        .every(c => c.ok)) { $('count').value = n; break; }
+  }
+
+  $('provenance').textContent = data.source + ' Built ' + data.built_utc + '.';
+  ['panel','inv','count'].forEach(id => $(id).addEventListener('input', render));
+  $('filter').addEventListener('input', renderRows);
+  render(); renderRows();
+}).catch(err => {
+  $('checks').innerHTML = '<li class="unknown"><span class="mark">–</span><span>' +
+    'We could not load the parts (' + err.message + ').</span></li>';
+});
+</script>
+</body>
+</html>
