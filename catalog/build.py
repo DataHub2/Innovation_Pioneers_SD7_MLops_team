@@ -428,16 +428,16 @@ def load_listings() -> tuple[list[dict], list[dict], dict]:
 def write_seed(panel_list, inverter_list) -> None:
     """Scaffold listings.seed.json with real ids and blank prices to fill in."""
     rows_out = [
-        {"listing_id": "L-inv-01", "component_type": "inverter",
+        {"listing_id": f"L-inv-{i:02d}", "component_type": "inverter",
          "component_id": inv["inverter_id"], "supplier_id": "S1",
          "unit_price_php": None, "stock_units": None, "price_as_of": None}
-        for inv in inverter_list
+        for i, inv in enumerate(inverter_list, start=1)
     ]
     rows_out += [
-        {"listing_id": "L-bat-01", "component_type": "battery",
+        {"listing_id": f"L-bat-{i:02d}", "component_type": "battery",
          "component_id": bat["battery_id"], "supplier_id": "S1",
          "unit_price_php": None, "stock_units": None, "price_as_of": None}
-        for bat in BATTERIES
+        for i, bat in enumerate(BATTERIES, start=1)
     ]
     # Only the biggest panels: 3,368 rows is not a form a human can fill in.
     for i, panel in enumerate(panel_list[:12], start=1):

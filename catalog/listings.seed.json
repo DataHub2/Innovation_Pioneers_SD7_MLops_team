@@ -19,7 +19,7 @@
    "price_as_of": null
   },
   {
-   "listing_id": "L-inv-01",
+   "listing_id": "L-inv-02",
    "component_type": "inverter",
    "component_id": "deye-sun-3-6k-sg04lp1-eu",
    "supplier_id": "S1",
@@ -28,7 +28,7 @@
    "price_as_of": null
   },
   {
-   "listing_id": "L-inv-01",
+   "listing_id": "L-inv-03",
    "component_type": "inverter",
    "component_id": "deye-sun-5k-sg04lp1-eu",
    "supplier_id": "S1",
@@ -37,7 +37,7 @@
    "price_as_of": null
   },
   {
-   "listing_id": "L-inv-01",
+   "listing_id": "L-inv-04",
    "component_type": "inverter",
    "component_id": "deye-sun-6k-sg04lp1-eu",
    "supplier_id": "S1",
@@ -102,7 +102,7 @@
   {
    "listing_id": "L-pnl-06",
    "component_type": "panel",
-   "component_id": "cec-suzhou-talesun-solar-technologies-co-ltd",
+   "component_id": "cec-suzhou-talesun-solar-technologies-co-ltd-tm8g66m-730",
    "supplier_id": "S1",
    "unit_price_php": null,
    "stock_units": null,
@@ -129,7 +129,7 @@
   {
    "listing_id": "L-pnl-09",
    "component_type": "panel",
-   "component_id": "cec-suzhou-talesun-solar-technologies-co-ltd",
+   "component_id": "cec-suzhou-talesun-solar-technologies-co-ltd-tm8g66m-725",
    "supplier_id": "S1",
    "unit_price_php": null,
    "stock_units": null,
