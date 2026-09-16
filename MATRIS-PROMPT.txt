@@ -1,0 +1,93 @@
+================================================================================
+ MATRIS — PROMPT ATT KOPIERA
+ Klistra in allt UNDER denna ruta i Lovable-chatten.
+================================================================================
+
+Prompten gör två saker i en följd:
+
+  1. Den ber Lovable att FÖRST kontrollera om kompatibilitetskontrollerna
+     överhuvudtaget fångar upp ett ogiltigt panelantal. Vi satte 14 paneler och
+     allt sade ändå "Looks OK". Är det en bugg ska den rättas först.
+  2. Sedan bygger den matrisen: en tabell som visar vilka kombinationer som
+     passar, istället för att man måste prova sig fram en i taget.
+
+ZIP-filen vi har är äldre än den driftsatta sajten, men det spelar ingen roll
+här — Lovable har sin egen kod och kan göra ändringen själv. Be den bara säga
+vilka filer den rörde, så vi kan granska efteråt.
+
+
+================================================================================
+ KLISTRA IN FRAN HAR OCH NER
+================================================================================
+
+Two tasks, in order. Do the first one first and report back before starting the
+second.
+
+## Task 1: check whether the compatibility checks actually work
+
+On the build page, the card "Do these parts fit together?" runs a list of
+checks and shows "Looks OK in this demo" or "Needs changing" for each.
+
+I set the panel count to 14 with the JA Solar JAM72D30-550/MB panel and the
+Deye SUN-6K-SG04LP1-EU inverter. Fourteen panels in series is about 699 V, which
+is above that inverter's 500 V DC limit. Every check still said "Looks OK".
+
+Tell me whether that is correct behaviour or a bug. If it is a bug, fix it
+before doing anything else, and explain what was wrong.
+
+Do not change anything else while you look at this.
+
+## Task 2: add a table that shows which combinations fit together
+
+The page can currently only confirm one combination at a time, so a user cannot
+see which parts work with which. Add a section that answers it directly.
+
+Where: on the build page, directly below the "Do these parts fit together?"
+card. Put it behind a collapsed toggle labelled "Show all combinations", so it
+does not overwhelm someone who has never seen a solar panel. Collapsed by
+default.
+
+What: one table.
+
+- Rows are the panels, but GROUPED BY WATTAGE rather than one row per model.
+  Group together every panel whose valid panel-count range is identical, and
+  label the row with the wattage and how many models it covers, for example
+  "740 W (43 models)". There are 61 panels in the catalogue; 61 rows is not
+  readable.
+- Columns are the inverters, one each, using their short names.
+- Each cell shows the range of panel counts for which that panel works with
+  that inverter, for example "4-8". If no count works, show a dash and put the
+  reason in a tooltip.
+- Sweep panel counts from 1 to 30.
+
+Below that table, add a single row for the battery: for each inverter, the
+maximum number of batteries that can be connected in parallel.
+
+Under the table, one short sentence naming what limits the narrowest range and
+what limits the widest, in plain words. Do not show internal rule keys or
+voltage values in the table itself.
+
+## How to build it
+
+Reuse the existing check logic. Do NOT write a second copy of the rules.
+
+Extract a helper from the existing evaluation that answers: for this panel, this
+inverter, and a panel count, which checks pass and which fail? Use that helper
+in both the existing card and the new table, so the two can never disagree.
+
+If the current logic cannot answer that without being restructured, tell me what
+would have to change instead of duplicating it.
+
+Keep the reading level the same as the rest of the page. This is for someone who
+has never seen a solar panel.
+
+Do not change any existing behaviour or wording.
+
+## When you are done
+
+Tell me which files you changed, and paste the helper you extracted so I can
+check that both places use it.
+
+================================================================================
+ SLUT
+================================================================================
