@@ -1,0 +1,259 @@
+{
+ "household": {
+  "household_id": "HH001",
+  "name": "Demo Household",
+  "location": "Laguna Philippines",
+  "timezone": "Asia/Manila",
+  "monthly_consumption_kwh": 450,
+  "budget_php": 250000,
+  "system_type": "hybrid",
+  "critical_load_kw": 0.5,
+  "target_backup_hours": 8,
+  "tariff_php_per_kwh": 12,
+  "peak_sun_hours": 4.5,
+  "performance_ratio": 0.8,
+  "is_synthetic": true
+ },
+ "panels": [
+  {
+   "panel_id": "P450",
+   "name": "Demo Sun 450",
+   "rated_power_w": 450,
+   "vmp_v": 34.5,
+   "imp_a": 13.04,
+   "voc_v": 41.2,
+   "isc_a": 13.8,
+   "warranty_years": 12
+  },
+  {
+   "panel_id": "P550",
+   "name": "Demo Sun 550",
+   "rated_power_w": 550,
+   "vmp_v": 41.8,
+   "imp_a": 13.16,
+   "voc_v": 49.9,
+   "isc_a": 13.9,
+   "warranty_years": 12
+  }
+ ],
+ "inverters": [
+  {
+   "inverter_id": "I3000",
+   "name": "Demo Hybrid 3",
+   "system_type": "hybrid",
+   "rated_ac_power_kw": 3,
+   "max_pv_power_kw": 4,
+   "mppt_min_v": 120,
+   "mppt_max_v": 400,
+   "max_dc_voltage_v": 450,
+   "max_mppt_current_a": 16,
+   "max_mppt_isc_a": 20,
+   "mppt_count": 1,
+   "battery_min_v": 40,
+   "battery_max_v": 60,
+   "max_battery_power_kw": 2,
+   "bms_family": "DEMO_LV_A",
+   "monitoring_support": "simulated_adapter"
+  },
+  {
+   "inverter_id": "I5000",
+   "name": "Demo Hybrid 5",
+   "system_type": "hybrid",
+   "rated_ac_power_kw": 5,
+   "max_pv_power_kw": 6.5,
+   "mppt_min_v": 120,
+   "mppt_max_v": 450,
+   "max_dc_voltage_v": 500,
+   "max_mppt_current_a": 16,
+   "max_mppt_isc_a": 20,
+   "mppt_count": 2,
+   "battery_min_v": 40,
+   "battery_max_v": 60,
+   "max_battery_power_kw": 3,
+   "bms_family": "DEMO_LV_A",
+   "monitoring_support": "simulated_adapter"
+  }
+ ],
+ "batteries": [
+  {
+   "battery_id": "B512",
+   "name": "Demo Store 5.12",
+   "nominal_capacity_kwh": 5.12,
+   "nominal_voltage_v": 51.2,
+   "min_operating_voltage_v": 44.8,
+   "max_operating_voltage_v": 57.6,
+   "max_charge_discharge_kw": 2.5,
+   "max_parallel_units": 2,
+   "bms_family": "DEMO_LV_A"
+  },
+  {
+   "battery_id": "BHV",
+   "name": "Demo High Voltage 10",
+   "nominal_capacity_kwh": 10,
+   "nominal_voltage_v": 204.8,
+   "min_operating_voltage_v": 180,
+   "max_operating_voltage_v": 230,
+   "max_charge_discharge_kw": 5,
+   "max_parallel_units": 1,
+   "bms_family": "DEMO_HV_B"
+  }
+ ],
+ "suppliers": [
+  {
+   "supplier_id": "S1",
+   "name": "Demo Solar Shop A",
+   "location": "Laguna",
+   "is_synthetic": true
+  },
+  {
+   "supplier_id": "S2",
+   "name": "Demo Solar Shop B",
+   "location": "Metro Manila",
+   "is_synthetic": true
+  }
+ ],
+ "listings": [
+  {
+   "listing_id": "L1",
+   "component_id": "P550",
+   "component_type": "panel",
+   "supplier_id": "S1",
+   "unit_price_php": 6500,
+   "stock_units": 100,
+   "price_as_of": "2026-09-09",
+   "is_synthetic": true
+  },
+  {
+   "listing_id": "L2",
+   "component_id": "P550",
+   "component_type": "panel",
+   "supplier_id": "S2",
+   "unit_price_php": 7000,
+   "stock_units": 100,
+   "price_as_of": "2026-09-09",
+   "is_synthetic": true
+  },
+  {
+   "listing_id": "L3",
+   "component_id": "P450",
+   "component_type": "panel",
+   "supplier_id": "S1",
+   "unit_price_php": 5500,
+   "stock_units": 100,
+   "price_as_of": "2026-09-09",
+   "is_synthetic": true
+  },
+  {
+   "listing_id": "L4",
+   "component_id": "I5000",
+   "component_type": "inverter",
+   "supplier_id": "S2",
+   "unit_price_php": 55000,
+   "stock_units": 10,
+   "price_as_of": "2026-09-09",
+   "is_synthetic": true
+  },
+  {
+   "listing_id": "L5",
+   "component_id": "I3000",
+   "component_type": "inverter",
+   "supplier_id": "S1",
+   "unit_price_php": 40000,
+   "stock_units": 10,
+   "price_as_of": "2026-09-09",
+   "is_synthetic": true
+  },
+  {
+   "listing_id": "L6",
+   "component_id": "B512",
+   "component_type": "battery",
+   "supplier_id": "S1",
+   "unit_price_php": 45000,
+   "stock_units": 20,
+   "price_as_of": "2026-09-09",
+   "is_synthetic": true
+  },
+  {
+   "listing_id": "L7",
+   "component_id": "B512",
+   "component_type": "battery",
+   "supplier_id": "S2",
+   "unit_price_php": 48000,
+   "stock_units": 20,
+   "price_as_of": "2026-09-09",
+   "is_synthetic": true
+  },
+  {
+   "listing_id": "L8",
+   "component_id": "BHV",
+   "component_type": "battery",
+   "supplier_id": "S2",
+   "unit_price_php": 95000,
+   "stock_units": 5,
+   "price_as_of": "2026-09-09",
+   "is_synthetic": true
+  }
+ ],
+ "configurations": [
+  {
+   "configuration_id": "C1",
+   "household_id": "HH001",
+   "name": "Budget",
+   "panel_id": "P450",
+   "panel_count": 6,
+   "inverter_id": "I3000",
+   "battery_id": "B512",
+   "battery_count": 1,
+   "series_panels_per_string": 6,
+   "parallel_strings_per_mppt": 1,
+   "used_mppt_count": 1,
+   "other_cost_allowance_php": 25000,
+   "status": "demo_planning_only"
+  },
+  {
+   "configuration_id": "C2",
+   "household_id": "HH001",
+   "name": "Balanced",
+   "panel_id": "P550",
+   "panel_count": 8,
+   "inverter_id": "I5000",
+   "battery_id": "B512",
+   "battery_count": 2,
+   "series_panels_per_string": 8,
+   "parallel_strings_per_mppt": 1,
+   "used_mppt_count": 1,
+   "other_cost_allowance_php": 30000,
+   "status": "demo_planning_only"
+  },
+  {
+   "configuration_id": "C3",
+   "household_id": "HH001",
+   "name": "More Solar",
+   "panel_id": "P550",
+   "panel_count": 10,
+   "inverter_id": "I5000",
+   "battery_id": "B512",
+   "battery_count": 2,
+   "series_panels_per_string": 10,
+   "parallel_strings_per_mppt": 1,
+   "used_mppt_count": 1,
+   "other_cost_allowance_php": 35000,
+   "status": "demo_planning_only"
+  }
+ ],
+ "installedSystem": {
+  "system_id": "SYS001",
+  "household_id": "HH001",
+  "configuration_id": "C2",
+  "panel_capacity_kw": 4.4,
+  "inverter_capacity_kw": 5,
+  "battery_capacity_kwh": 10.24,
+  "battery_min_soc_pct": 20,
+  "battery_max_soc_pct": 95,
+  "initial_soc_pct": 65,
+  "solar_dc_to_bus_efficiency": 0.96,
+  "battery_charge_efficiency": 0.95,
+  "battery_discharge_efficiency": 0.95,
+  "source": "synthetic_simulator"
+ }
+}

@@ -1,0 +1,166 @@
+{
+ "_readme": "Fill in name/location below, then a real price and stock for each row you have a quote for. Rows left null are dropped by build.py — they never reach the app. price_as_of is filled in automatically with today's date if left null.",
+ "suppliers": [
+  {
+   "supplier_id": "S1",
+   "name": "",
+   "location": "",
+   "is_synthetic": false
+  }
+ ],
+ "listings": [
+  {
+   "listing_id": "L-inv-01",
+   "component_type": "inverter",
+   "component_id": "deye-sun-3k-sg04lp1-eu",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-inv-01",
+   "component_type": "inverter",
+   "component_id": "deye-sun-3-6k-sg04lp1-eu",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-inv-01",
+   "component_type": "inverter",
+   "component_id": "deye-sun-5k-sg04lp1-eu",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-inv-01",
+   "component_type": "inverter",
+   "component_id": "deye-sun-6k-sg04lp1-eu",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-bat-01",
+   "component_type": "battery",
+   "component_id": "deye-rw-f10-2",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-pnl-01",
+   "component_type": "panel",
+   "component_id": "cec-rec-group-rec740aa-pro-xl",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-pnl-02",
+   "component_type": "panel",
+   "component_id": "cec-trina-solar-tsm-740neg21c20",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-pnl-03",
+   "component_type": "panel",
+   "component_id": "cec-trina-solar-tsm-735neg21c20",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-pnl-04",
+   "component_type": "panel",
+   "component_id": "cec-rec-group-rec730aa-pro-xl",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-pnl-05",
+   "component_type": "panel",
+   "component_id": "cec-risen-energy-co-ltd-rsm132-8-730bhdg",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-pnl-06",
+   "component_type": "panel",
+   "component_id": "cec-suzhou-talesun-solar-technologies-co-ltd",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-pnl-07",
+   "component_type": "panel",
+   "component_id": "cec-trina-solar-tsm-730neg21c20",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-pnl-08",
+   "component_type": "panel",
+   "component_id": "cec-risen-energy-co-ltd-rsm132-8-725bhdg",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-pnl-09",
+   "component_type": "panel",
+   "component_id": "cec-suzhou-talesun-solar-technologies-co-ltd",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-pnl-10",
+   "component_type": "panel",
+   "component_id": "cec-trina-solar-coltd-tsm-725neg21c20",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-pnl-11",
+   "component_type": "panel",
+   "component_id": "cec-rec-group-rec720aa-pro-xl",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  },
+  {
+   "listing_id": "L-pnl-12",
+   "component_type": "panel",
+   "component_id": "cec-risen-energy-co-ltd-rsm132-8-720bhdg",
+   "supplier_id": "S1",
+   "unit_price_php": null,
+   "stock_units": null,
+   "price_as_of": null
+  }
+ ]
+}
